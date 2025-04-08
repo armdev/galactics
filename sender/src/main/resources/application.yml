@@ -1,0 +1,185 @@
+management:
+  health:
+    livenessstate:
+      enabled: true
+    readinessstate:
+      enabled: true
+  security:
+    enabled: false
+  server:
+    port: 3333
+  tracing:
+    sampling:
+      probability: 1.0
+
+  endpoint:
+    shutdown:
+      access: UNRESTRICTED
+    loggers:
+      access: UNRESTRICTED
+    health:
+      enabled: true
+      show-details: ALWAYS
+    probes:
+      enabled: true
+  endpoints:
+    access:
+      default: UNRESTRICTED
+    jmx:
+      exposure:
+       include: '*'
+    web:
+     exposure:
+      include: '*'
+    cors:
+      allowed-origins: 'true'
+      enabled-by-default: 'false'
+      
+server:
+    tomcat:        
+      connection-timeout: 20m
+      keep-alive-timeout: 20m    
+      max-http-form-post-size: 50MB
+      max-swallow-size: 50MB
+      max-keep-alive-requests: 3000
+    shutdown: GRACEFUL
+    http2:
+     enabled: true
+    port: 4444
+    servlet:
+      session:
+        timeout: 10m
+    compression:
+      enabled: true
+      mime-types: text/html,text/xml,text/plain,text/css,text/javascript,application/javascript,application/json
+      min-response-size: 1024
+      
+spring:
+
+  thread:
+    virtual:
+      enabled: true
+      
+  kafka:    
+    listener:
+      ack-mode: MANUAL
+    consumer:
+      bootstrap-servers: ${KAFKA_BROKERS}
+      auto-offset-reset: earliest         
+      enable-auto-commit: false
+      session.timeout.ms: 30000
+      group-id: bank-ledger
+      client-id: bank-ledger
+      max-poll-records: 10
+      fetch-max-wait: 100
+      fetch-min-size: 504857600      
+    producer:
+      batch-size: 1048570000
+      bootstrap-servers: ${KAFKA_BROKERS}
+      buffer-memory: 97938193
+      group-id: bank-ledger
+      client-id: bank-ledger
+      retries: 10
+
+  main:
+    allow-circular-references: false
+    lazy-initialization: false
+  application:
+    name: sender
+    
+  profiles:
+    active:
+      ${ENV:LOCAL}     
+     
+  cloud:
+    discovery:
+       service-id: sender
+       enabled: true    
+  datasource:
+    hikari:
+      # Connection pool settings for HikariCP
+      connection-timeout: 50000           # Maximum time that a client will wait for a connection from the pool (in milliseconds)
+      idle-timeout: 60000                 # Maximum time that a connection is allowed to sit idle in the pool (in milliseconds)
+      max-lifetime: 180000                 # Maximum lifetime of a connection in the pool (in milliseconds)
+      maximum-pool-size: 200              # Maximum number of connections that can be maintained in the pool
+      minimum-idle: 5                     # Minimum number of idle connections that HikariCP tries to maintain in the pool
+      pool-name: bank-ledger                 # Name of the connection pool
+
+    tomcat:
+      # Connection pool settings for Tomcat JDBC
+      initial-size: 4                     # Initial number of connections that are created when the pool is started
+      max-wait: 80000                     # The maximum time (in milliseconds) that the pool will wait for a connection to be returned
+      max-active: 800                     # The maximum number of active connections that can be allocated from the pool
+      max-idle: 100                       # The maximum number of connections that can remain idle in the pool
+      min-idle: 30                        # The minimum number of idle connections that Tomcat JDBC tries to maintain in the pool
+      remove-abandoned: true              # Whether to remove abandoned connections (true/false)
+      remove-abandoned-timeout: 800       # Timeout (in seconds) before a connection is considered abandoned
+      time-between-eviction-runs-millis: 3400000  # The time between runs of the idle connection eviction thread (in milliseconds)
+      min-evictable-idle-time-millis: 5500000    # The minimum time a connection may sit idle in the pool before it is eligible for eviction (in milliseconds)
+      default-auto-commit: false          # Default auto-commit behavior for connections obtained from the pool
+
+    url: '${POSTGRES_URI}'  # JDBC URL for connecting to the database
+    username: '${POSTGRES_USER}'                             # Database username
+    password: '${POSTGRES_PASSWORD}'                         # Database password
+    test-while-idle: true                # Test connections while they are idle
+    validation-query: SELECT 1           # SQL query used to validate connections
+    driver-class-name: org.postgresql.Driver  # Fully qualified name of the JDBC driver class
+
+  jpa:
+    show-sql: false                      # Whether to show SQL statements in the console
+    database: POSTGRESQL                 # Database dialect to use (e.g., POSTGRESQL, H2, MYSQL)
+    hibernate:
+      ddl-auto: update                  # Hibernate DDL strategy (e.g., create, update, validate, none)
+      naming-strategy: org.hibernate.cfg.ImprovedNamingStrategy  # Naming strategy for Hibernate
+      dialect: org.hibernate.dialect.PostgreSQL15Dialect         # Database dialect for Hibernate
+      query:
+        plan-cache-max-size: 16000        # Maximum size of the query plan cache
+        plan-parameter-metadata-max-size: 16000  # Maximum size of the query plan parameter metadata cache
+    properties:
+      jakarta:
+       persistence:
+        sharedCache:
+          mode: ALL
+      hibernate:
+        temp:
+          use-jdbc-metadata-defaults: false  # Whether to use JDBC metadata defaults for handling temporal types
+
+
+  sql:
+    init:
+      platform: POSTGRESQL
+
+  jackson:
+    serialization:
+      write_dates_as_timestamps: false
+
+caffeine:
+  default:
+    expiration-time-millis: 90000
+    allow-null-values: false
+    maximum-cache-size: 900000
+    
+logging:    
+    structured:
+        format:
+          console: ecs
+          file: ecs
+        json:
+          add:
+            host: sender
+            version: 1.0         
+        ecs:
+         service:
+           name: sender
+           version: 1.0
+           environment: ${ENV}
+           node-name: primary
+          
+    file:
+      name: ${java.io.tmpdir}/app.log
+    
+    pattern:
+      level: '%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]'
+    level:
+      root: INFO
+      io.project: INFO 
