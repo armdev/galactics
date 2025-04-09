@@ -7,6 +7,7 @@
     <packaging>pom</packaging>
     <modules>
         <module>sender</module>
+        <module>receiver</module>
        
     </modules>
     <properties>

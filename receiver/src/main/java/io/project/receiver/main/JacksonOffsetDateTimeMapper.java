@@ -1,5 +1,7 @@
-package io.project.sender;
+package io.project.receiver.main;
 
+import io.project.receiver.main.LocalDateTimeSerializer;
+import io.project.receiver.main.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.module.SimpleModule;

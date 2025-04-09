@@ -116,6 +116,4 @@ volumes:
 
 networks:
   banknet:
-    driver: bridge
-    ipam:
-      driver: default
+    external: true

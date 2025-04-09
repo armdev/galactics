@@ -2,11 +2,17 @@
 
 set -e
 
-# Stop any running containers
-docker compose --file keycloak-compose.yml down
+# Create the docker network if it does not exist
+if ! docker network inspect banknet >/dev/null 2>&1; then
+  echo "Creating docker network 'banknet'..."
+  docker network create --driver bridge banknet
+else
+  echo "Docker network 'banknet' already exists."
+fi
 
-# Start the containers
-docker compose --file keycloak-compose.yml --compatibility up -d --build
+# Bring down and then up the compose environment
+docker compose --file postgres-compose.yml down
+docker compose --file postgres-compose.yml --compatibility up -d --build
 
-# Tail Keycloak logs
-docker logs --follow keycloak
+# Tail the logs
+docker logs --follow postgresql-master

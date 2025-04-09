@@ -1,4 +1,4 @@
-package io.project.sender.events;
+package io.project.receiver.events;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;

@@ -1,4 +1,4 @@
-package io.project.sender;
+package io.project.receiver.main;
 
 import jakarta.persistence.EntityManagerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -23,4 +23,5 @@ public class JpaConfig {
             @Qualifier("entityManagerFactory") EntityManagerFactory entityManagerFactory) {
         return new JpaTransactionManager(entityManagerFactory);
     }
+
 }

@@ -1,19 +1,12 @@
-package io.project.sender.transport;
+package io.project.receiver.transport;
 
 import com.google.gson.Gson;
-import io.project.sender.domain.PaymentEvent;
-import io.project.sender.events.AccountEvent;
-import io.project.sender.helpers.ObjectMapperHelper;
-import io.project.sender.helpers.UTCTimeProvider;
-import io.project.sender.repositories.EventRepository;
+import io.project.receiver.events.EventStatusUpdate;
 
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDateTime;
-import java.util.List;
 import java.util.concurrent.Callable;
 
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
@@ -42,12 +35,13 @@ public class EventProducer {
 
     private final TransactionTemplate transactionTemplate;
 
-    private final EventRepository eventRepository;
+    private static final String TARGET_TOPIC = "evn-transfer-status";
 
-    private static final String TARGET_TOPIC = "evn-transfer";
-
-    public void sendMessage1(List<AccountEvent> events) {
-
+    public void sendMessage(String id, String transactionId, String status) {
+        EventStatusUpdate eventStatusUpdate = new EventStatusUpdate();
+        eventStatusUpdate.setId(id);
+        eventStatusUpdate.setStatus(status);
+        eventStatusUpdate.setTransactionId(transactionId);
         long startTime = System.nanoTime(); // Start the timer
 
         Gson gson = new Gson();
@@ -58,9 +52,7 @@ public class EventProducer {
 
         Callable<String> scheduledCallable = () -> {
 
-            for (AccountEvent event : events) {
-                pushMessage(gson.toJson(event), event.getTransactionId());
-            }
+            pushMessage(gson.toJson(eventStatusUpdate), eventStatusUpdate.getTransactionId());
 
             long endTime = System.nanoTime(); // Stop the timer
             long executionTimeNano = endTime - startTime; // Calculate the execution time in nanoseconds
@@ -73,43 +65,6 @@ public class EventProducer {
 
         scheduledExecutorService.schedule(scheduledCallable, 1, TimeUnit.SECONDS);
 
-    }
-
-    public void sendMessage(List<AccountEvent> events) {
-        long startTime = System.nanoTime(); // Start the timer
-
-        Gson gson = new Gson();
-
-        ///  ThreadFactory factory = Thread.ofVirtual().factory();
-
-        // Create a thread pool with a fixed number of threads
-        ExecutorService executorService = Executors.newFixedThreadPool(500);
-        ///increase for performance
-
-        for (AccountEvent event : events) {
-            executorService.execute(() -> {
-                // Perform the pushMessage operation in a separate thread
-                PaymentEvent fromEventToEntity = ObjectMapperHelper.fromEventToEntity(event);
-                LocalDateTime utcTime = UTCTimeProvider.getUtcTime();
-                fromEventToEntity.setCreated(utcTime);
-                fromEventToEntity.setUpdated(utcTime);
-                eventRepository.save(fromEventToEntity);
-                this.pushMessage(gson.toJson(event), event.getTransactionId());
-            });
-        }
-
-        // Shutdown the executor service and wait for all tasks to complete
-        executorService.shutdown();
-        try {
-            executorService.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
-        } catch (InterruptedException ex) {
-        }
-
-        long endTime = System.nanoTime(); // Stop the timer
-        long executionTimeNano = endTime - startTime; // Calculate the execution time in nanoseconds
-        double executionTimeSeconds = executionTimeNano / 1_000_000_000.0; // Convert nanoseconds to seconds
-
-        log.info("Execution time: " + executionTimeSeconds + " seconds");
     }
 
     @SneakyThrows

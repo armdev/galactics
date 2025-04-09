@@ -59,11 +59,8 @@ services:
     volumes:
       - ~/volumes/data/pgbackup/_data/pgadmin:/var/lib/pgadmin
     networks:
-      - banknet
- 
+      - banknet 
 
 networks:
   banknet:
-    driver: bridge
-    ipam:
-      driver: default
+    external: true

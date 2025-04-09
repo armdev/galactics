@@ -11,6 +11,18 @@ services:
     networks:
       - banknet
       
+      
+  reciever:
+    image: receiver
+    build: ./receiver
+    env_file: ./receiver/.env
+    container_name: receiver    
+    ports:
+      - '5555:5555'
+      - '6666:6666' 
+    networks:
+      - banknet
+      
 
 networks:
   banknet:
