@@ -98,9 +98,9 @@ spring:
   datasource:
     hikari:
       # Connection pool settings for HikariCP
-      connection-timeout: 50000           # Maximum time that a client will wait for a connection from the pool (in milliseconds)
-      idle-timeout: 60000                 # Maximum time that a connection is allowed to sit idle in the pool (in milliseconds)
-      max-lifetime: 180000                 # Maximum lifetime of a connection in the pool (in milliseconds)
+      connection-timeout: 3000           # Maximum time that a client will wait for a connection from the pool (in milliseconds)
+      idle-timeout: 6000                 # Maximum time that a connection is allowed to sit idle in the pool (in milliseconds)
+      max-lifetime: 18000                 # Maximum lifetime of a connection in the pool (in milliseconds)
       maximum-pool-size: 200              # Maximum number of connections that can be maintained in the pool
       minimum-idle: 5                     # Minimum number of idle connections that HikariCP tries to maintain in the pool
       pool-name: sender                 # Name of the connection pool
@@ -108,7 +108,7 @@ spring:
     tomcat:
       # Connection pool settings for Tomcat JDBC
       initial-size: 4                     # Initial number of connections that are created when the pool is started
-      max-wait: 80000                     # The maximum time (in milliseconds) that the pool will wait for a connection to be returned
+      max-wait: 80000                    # The maximum time (in milliseconds) that the pool will wait for a connection to be returned
       max-active: 800                     # The maximum number of active connections that can be allocated from the pool
       max-idle: 100                       # The maximum number of connections that can remain idle in the pool
       min-idle: 30                        # The minimum number of idle connections that Tomcat JDBC tries to maintain in the pool
