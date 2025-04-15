@@ -63,7 +63,7 @@ public class PaymentEvent implements Serializable {
     private String details;
 
     @Basic(optional = false)
-    @Column(name = "status", updatable = false)
+    @Column(name = "status", updatable = true)
     private String status;
 
     @Basic(optional = false)

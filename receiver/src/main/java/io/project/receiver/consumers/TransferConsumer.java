@@ -31,8 +31,8 @@ public class TransferConsumer {
             @Header("X-Producer-Header") String header
     ) {
         log.debug("--- TRANSACTION START ---");
-        log.info("receiver-transfer: key '{}' ", key);
-        log.info("receiver-transfer: payload '{}' ", payload);
+        log.debug("receiver-transfer: key '{}' ", key);
+        log.debug("receiver-transfer: payload '{}' ", payload);
         Gson gson = new Gson();
         AccountEvent record = gson.fromJson(payload, AccountEvent.class);
         publisher.publishEvent(record);

@@ -31,7 +31,7 @@ public class TransferStatusConsumer {
             @Header("X-Producer-Header") String header
     ) {
         log.debug("--- TRANSACTION START ---");
-        log.debug("receiver-transfer: key '{}' ", key);
+        //log.info("receiver-transfer: key '{}' ", key);
         log.debug("receiver-transfer: payload '{}' ", payload);
         Gson gson = new Gson();
         EventStatusUpdate record = gson.fromJson(payload, EventStatusUpdate.class);

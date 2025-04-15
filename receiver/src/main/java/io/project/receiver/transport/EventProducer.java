@@ -58,7 +58,7 @@ public class EventProducer {
             long executionTimeNano = endTime - startTime; // Calculate the execution time in nanoseconds
             double executionTimeSeconds = executionTimeNano / 1_000_000_000.0; // Convert nanoseconds to seconds
 
-            log.info("Execution time: " + executionTimeSeconds + " seconds");
+            log.debug("Execution time: " + executionTimeSeconds + " seconds");
 
             return "Done";
         };
@@ -70,7 +70,7 @@ public class EventProducer {
     @SneakyThrows
     @Transactional("kafkaTransactionManager")
     public void pushMessage(String message, String transactionId) {
-        log.info("TRANSFER REQUEST TransactionId, sent {}", transactionId);
+        log.info("SEND BACK TRANSFER REQUEST TransactionId, sent {}", transactionId);
         ProducerRecord<String, String> producerRecord
                 = new ProducerRecord<>(TARGET_TOPIC, transactionId, message);
         producerRecord.headers().add(KafkaHeaders.TOPIC, TARGET_TOPIC.getBytes(StandardCharsets.UTF_8));
@@ -86,7 +86,7 @@ public class EventProducer {
                         log.error("@KAFKA FAIL: notification unable to send message='{}'", message, throwable);
                     } else {
                         // Handle success
-                        log.info("@KAFKA SUCCESS: Message sent: {}", sendResult.getProducerRecord().value());
+                        log.info("@KAFKA SENT SUCCESS: Message sent: {}", sendResult.getProducerRecord().value());
                     }
                 });
 

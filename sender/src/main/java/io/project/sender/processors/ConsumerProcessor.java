@@ -21,19 +21,22 @@ public class ConsumerProcessor {
     private final EventRepository eventRepository;
 
     @EventListener
-    @Async
+   // @Async
     public void handleNewTransferEvent(EventStatusUpdate event) {
         updateTransfer(event);
     }
 
-    @Transactional
+    @Transactional("transactionManager")
     public void updateTransfer(EventStatusUpdate event) {
         Optional<PaymentEvent> existingRecord = eventRepository.findById(event.getId());
         if (existingRecord.isPresent()) {
             PaymentEvent record = existingRecord.get();
             record.setUpdated(UTCTimeProvider.getUtcTime());
             record.setStatus(event.getStatus());
-            eventRepository.save(record);
+          //  log.info("Update record status "+event.getStatus());
+            PaymentEvent save = eventRepository.save(record);
+           // log.info("SAVED WITH STATUS " +save.getStatus());
+            
         }
     }
 
