@@ -97,27 +97,12 @@ spring:
        enabled: true    
   datasource:
     hikari:
-      # Connection pool settings for HikariCP
-      connection-timeout: 3000           # Maximum time that a client will wait for a connection from the pool (in milliseconds)
-      idle-timeout: 6000                 # Maximum time that a connection is allowed to sit idle in the pool (in milliseconds)
-      max-lifetime: 18000               # Maximum lifetime of a connection in the pool (in milliseconds)
-      maximum-pool-size: 200              # Maximum number of connections that can be maintained in the pool
-      minimum-idle: 5                     # Minimum number of idle connections that HikariCP tries to maintain in the pool
-      pool-name: bank-ledger                 # Name of the connection pool
-
-    tomcat:
-      # Connection pool settings for Tomcat JDBC
-      initial-size: 4                     # Initial number of connections that are created when the pool is started
-      max-wait: 80000                     # The maximum time (in milliseconds) that the pool will wait for a connection to be returned
-      max-active: 800                     # The maximum number of active connections that can be allocated from the pool
-      max-idle: 100                       # The maximum number of connections that can remain idle in the pool
-      min-idle: 30                        # The minimum number of idle connections that Tomcat JDBC tries to maintain in the pool
-      remove-abandoned: true              # Whether to remove abandoned connections (true/false)
-      remove-abandoned-timeout: 800       # Timeout (in seconds) before a connection is considered abandoned
-      time-between-eviction-runs-millis: 3400000  # The time between runs of the idle connection eviction thread (in milliseconds)
-      min-evictable-idle-time-millis: 5500000    # The minimum time a connection may sit idle in the pool before it is eligible for eviction (in milliseconds)
-      default-auto-commit: false          # Default auto-commit behavior for connections obtained from the pool
-
+     pool-name: receiver
+     maximum-pool-size: 50       # Reduce from 200 to a realistic number your DB can handle
+     minimum-idle: 10
+     connection-timeout: 5000    # Wait longer before giving up
+     idle-timeout: 10000
+     max-lifetime: 300000        # 5 minutes
     url: '${POSTGRES_URI}'  # JDBC URL for connecting to the database
     username: '${POSTGRES_USER}'                             # Database username
     password: '${POSTGRES_PASSWORD}'                         # Database password
@@ -129,7 +114,7 @@ spring:
     show-sql: false                      # Whether to show SQL statements in the console
     database: POSTGRESQL                 # Database dialect to use (e.g., POSTGRESQL, H2, MYSQL)
     hibernate:
-      ddl-auto: create                  # Hibernate DDL strategy (e.g., create, update, validate, none)
+      ddl-auto: update                  # Hibernate DDL strategy (e.g., create, update, validate, none)
       naming-strategy: org.hibernate.cfg.ImprovedNamingStrategy  # Naming strategy for Hibernate
       dialect: org.hibernate.dialect.PostgreSQL15Dialect         # Database dialect for Hibernate
       query:
@@ -141,6 +126,10 @@ spring:
         sharedCache:
           mode: ALL
       hibernate:
+        jdbc:
+          batch_size: 100
+        order_inserts: true
+        order_updates: true
         temp:
           use-jdbc-metadata-defaults: false  # Whether to use JDBC metadata defaults for handling temporal types
 

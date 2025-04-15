@@ -59,6 +59,11 @@ public class EventProducer {
         Callable<String> scheduledCallable = () -> {
 
             for (AccountEvent event : events) {
+                PaymentEvent fromEventToEntity = ObjectMapperHelper.fromEventToEntity(event);
+                LocalDateTime utcTime = UTCTimeProvider.getUtcTime();
+                fromEventToEntity.setCreated(utcTime);
+                fromEventToEntity.setUpdated(utcTime);
+                eventRepository.save(fromEventToEntity);
                 pushMessage(gson.toJson(event), event.getTransactionId());
             }
 
@@ -83,7 +88,7 @@ public class EventProducer {
         ///  ThreadFactory factory = Thread.ofVirtual().factory();
 
         // Create a thread pool with a fixed number of threads
-        ExecutorService executorService = Executors.newFixedThreadPool(500);
+        ExecutorService executorService = Executors.newFixedThreadPool(600);
         ///increase for performance
 
         for (AccountEvent event : events) {
