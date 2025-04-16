@@ -10,13 +10,10 @@ import io.project.sender.repositories.EventRepository;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.concurrent.Callable;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -46,7 +43,6 @@ public class EventProducer {
 
     private static final String TARGET_TOPIC = "evn-transfer";
 
-  
     public void sendMessage(List<AccountEvent> events) {
         long startTime = System.nanoTime(); // Start the timer
 
@@ -87,7 +83,7 @@ public class EventProducer {
     @SneakyThrows
     @Transactional("kafkaTransactionManager")
     public void pushMessage(String message, String transactionId) {
-       // log.info("TRANSFER REQUEST TransactionId, sent {}", transactionId);
+        // log.info("TRANSFER REQUEST TransactionId, sent {}", transactionId);
         ProducerRecord<String, String> producerRecord
                 = new ProducerRecord<>(TARGET_TOPIC, transactionId, message);
         producerRecord.headers().add(KafkaHeaders.TOPIC, TARGET_TOPIC.getBytes(StandardCharsets.UTF_8));
@@ -103,7 +99,7 @@ public class EventProducer {
                         log.error("@KAFKA FAIL: notification unable to send message='{}'", message, throwable);
                     } else {
                         // Handle success
-                      log.info("@KAFKA SUCCESS: Message sent: {}", sendResult.getProducerRecord().value());
+                        log.info("@KAFKA SUCCESS: Message sent: {}", sendResult.getProducerRecord().value());
                     }
                 });
 
