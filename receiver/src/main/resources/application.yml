@@ -100,9 +100,9 @@ spring:
      pool-name: receiver
      maximum-pool-size: 50       # Reduce from 200 to a realistic number your DB can handle
      minimum-idle: 10
-     connection-timeout: 5000    # Wait longer before giving up
+     connection-timeout: 3000    # Wait longer before giving up
      idle-timeout: 10000
-     max-lifetime: 300000        # 5 minutes
+     max-lifetime: 10000       
     url: '${POSTGRES_URI}'  # JDBC URL for connecting to the database
     username: '${POSTGRES_USER}'                             # Database username
     password: '${POSTGRES_PASSWORD}'                         # Database password

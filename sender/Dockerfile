@@ -1,15 +1,17 @@
-FROM openjdk:24-jdk-slim-bookworm
+FROM bellsoft/liberica-openjdk-alpine:24-cds
 
-RUN useradd -ms /bin/sh notSec2075 \
-    && echo "root:Docker!" | chpasswd \
-    && chown -R notSec2075 /opt/
-# Copy the application jar
+# Create user and home directory
+RUN adduser -D -h /home/notSec2075 -s /bin/sh notSec2075 \
+    && mkdir -p /opt \
+    && chown -R notSec2075:notSec2075 /opt
+
+# Copy the jar to /opt
 COPY target/sender.jar /opt/sender.jar
 
-# Switch to the new user
+# Change to non-root user
 USER notSec2075
 
-# Define the entrypoint with Java options
+# Define entrypoint
 ENTRYPOINT ["java", "--add-opens", "java.base/java.time.zone=ALL-UNNAMED", \
             "--add-opens", "java.base/java.time=ALL-UNNAMED",\
             "--add-opens", "java.base/java.math=ALL-UNNAMED",  "--enable-native-access=ALL-UNNAMED", \
@@ -30,7 +32,5 @@ ENTRYPOINT ["java", "--add-opens", "java.base/java.time.zone=ALL-UNNAMED", \
             "-Dsun.net.client.defaultReadTimeout=30000", "-XX:+UnlockExperimentalVMOptions", \
             "-XshowSettings:vm", "-jar", "/opt/sender.jar"]
 
-# Expose required ports
+# Expose ports
 EXPOSE 3333 4444
-
-

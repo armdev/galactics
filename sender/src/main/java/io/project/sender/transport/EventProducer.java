@@ -46,40 +46,7 @@ public class EventProducer {
 
     private static final String TARGET_TOPIC = "evn-transfer";
 
-    public void sendMessage1(List<AccountEvent> events) {
-
-        long startTime = System.nanoTime(); // Start the timer
-
-        Gson gson = new Gson();
-
-        ThreadFactory factory = Thread.ofVirtual().factory();
-
-        ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(0, factory);
-
-        Callable<String> scheduledCallable = () -> {
-
-            for (AccountEvent event : events) {
-                PaymentEvent fromEventToEntity = ObjectMapperHelper.fromEventToEntity(event);
-                LocalDateTime utcTime = UTCTimeProvider.getUtcTime();
-                fromEventToEntity.setCreated(utcTime);
-                fromEventToEntity.setUpdated(utcTime);
-                eventRepository.save(fromEventToEntity);
-                pushMessage(gson.toJson(event), event.getTransactionId());
-            }
-
-            long endTime = System.nanoTime(); // Stop the timer
-            long executionTimeNano = endTime - startTime; // Calculate the execution time in nanoseconds
-            double executionTimeSeconds = executionTimeNano / 1_000_000_000.0; // Convert nanoseconds to seconds
-
-            log.info("Execution time: " + executionTimeSeconds + " seconds");
-
-            return "Done";
-        };
-
-        scheduledExecutorService.schedule(scheduledCallable, 1, TimeUnit.SECONDS);
-
-    }
-
+  
     public void sendMessage(List<AccountEvent> events) {
         long startTime = System.nanoTime(); // Start the timer
 
