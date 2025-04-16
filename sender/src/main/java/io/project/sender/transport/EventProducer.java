@@ -12,9 +12,11 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -83,26 +85,22 @@ public class EventProducer {
     @SneakyThrows
     @Transactional("kafkaTransactionManager")
     public void pushMessage(String message, String transactionId) {
-        // log.info("TRANSFER REQUEST TransactionId, sent {}", transactionId);
-        ProducerRecord<String, String> producerRecord
-                = new ProducerRecord<>(TARGET_TOPIC, transactionId, message);
+        ProducerRecord<String, String> producerRecord = new ProducerRecord<>(TARGET_TOPIC, transactionId, message);
         producerRecord.headers().add(KafkaHeaders.TOPIC, TARGET_TOPIC.getBytes(StandardCharsets.UTF_8));
         producerRecord.headers().add(KafkaHeaders.KEY, transactionId.getBytes(StandardCharsets.UTF_8));
         producerRecord.headers().add("X-Producer-Header", TARGET_TOPIC.getBytes(StandardCharsets.UTF_8));
-        transactionTemplate.execute(new TransactionCallbackWithoutResult() {
-            @Override
-            protected void doInTransactionWithoutResult(TransactionStatus status) {
-                CompletableFuture<SendResult<String, String>> future = kafkaTemplate.send(producerRecord);
-                future.whenComplete((sendResult, throwable) -> {
-                    if (throwable != null) {
-                        // Handle failure
-                        log.error("@KAFKA FAIL: notification unable to send message='{}'", message, throwable);
-                    } else {
-                        // Handle success
-                        log.info("@KAFKA SUCCESS: Message sent: {}", sendResult.getProducerRecord().value());
-                    }
-                });
 
+        transactionTemplate.executeWithoutResult(status -> {
+            try {
+                SendResult<String, String> sendResult = kafkaTemplate.send(producerRecord).get(10, TimeUnit.SECONDS);
+                log.info("@KAFKA SUCCESS: Message sent to topic={}, partition={}, offset={}, transactionId={}",
+                        sendResult.getRecordMetadata().topic(),
+                        sendResult.getRecordMetadata().partition(),
+                        sendResult.getRecordMetadata().offset(),
+                        transactionId);
+            } catch (InterruptedException | ExecutionException | TimeoutException e) {
+                log.error("@KAFKA FAILURE: Failed to send message for transactionId={}, message={}", transactionId, message, e);
+                throw new RuntimeException("Kafka send failed for transactionId=" + transactionId, e);
             }
         });
     }
