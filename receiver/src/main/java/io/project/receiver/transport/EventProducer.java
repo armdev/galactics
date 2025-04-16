@@ -86,7 +86,7 @@ public class EventProducer {
                         log.error("@KAFKA FAIL: notification unable to send message='{}'", message, throwable);
                     } else {
                         // Handle success
-                        log.info("@KAFKA SENT SUCCESS: Message sent: {}", sendResult.getProducerRecord().value());
+                        log.info("@KAFKA SENT BACK: Message sent: {}", sendResult.getProducerRecord().value());
                     }
                 });
 

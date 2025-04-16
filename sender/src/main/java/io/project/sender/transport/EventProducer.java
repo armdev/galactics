@@ -11,7 +11,6 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -27,9 +26,7 @@ import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.kafka.support.SendResult;
 
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 
 @Service
@@ -78,8 +75,9 @@ public class EventProducer {
         long endTime = System.nanoTime(); // Stop the timer
         long executionTimeNano = endTime - startTime; // Calculate the execution time in nanoseconds
         double executionTimeSeconds = executionTimeNano / 1_000_000_000.0; // Convert nanoseconds to seconds
-
+        log.info("-------------------- ");
         log.info("Execution time: " + executionTimeSeconds + " seconds");
+        log.info("-------------------- ");
     }
 
     @SneakyThrows
