@@ -13,7 +13,7 @@ public class AccountEventDataGenerator {
     public static List<AccountEvent> generateEvents() {
         List<AccountEvent> events = new ArrayList<>();
         Random random = new Random();
-        for (int i = 0; i < 10000; i++) {
+        for (int i = 0; i < 1000; i++) {
             AccountEvent event = new AccountEvent();
             event.setId(UuidCreator.getTimeOrderedEpoch().toString());
             event.setClientId(UuidCreator.getTimeOrderedEpoch().toString());
