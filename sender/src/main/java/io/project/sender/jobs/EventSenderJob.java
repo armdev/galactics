@@ -6,6 +6,7 @@ import io.project.sender.transport.EventProducer;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -23,6 +24,11 @@ public class EventSenderJob {
 
     @Scheduled(fixedRate = 5000)
     public void job() {
+
+        if (((ThreadPoolExecutor) executor).getQueue().remainingCapacity() == 0) {
+            log.warn("Executor queue is full, skipping this cycle");
+            return;
+        }
         // Run the task in a separate thread
         executor.submit(() -> {
             try {
@@ -30,7 +36,7 @@ public class EventSenderJob {
                 log.info("Generated {} events", events.size());
 
                 // Split into batches of 50 (or any suitable size)
-                int batchSize = 50;
+                int batchSize = 100;
                 for (int i = 0; i < events.size(); i += batchSize) {
                     int end = Math.min(i + batchSize, events.size());
                     List<AccountEvent> batch = events.subList(i, end);
