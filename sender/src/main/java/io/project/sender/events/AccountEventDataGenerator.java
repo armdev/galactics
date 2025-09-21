@@ -22,7 +22,7 @@ public class AccountEventDataGenerator {
             event.setNotificationId(UuidCreator.getTimeOrderedEpoch().toString());
             event.setTimestamp(System.currentTimeMillis());
             event.setCurrency(CURRENCIES[random.nextInt(CURRENCIES.length)]);
-            event.setReceivedAmount(BigDecimal.valueOf(random.nextDouble() * 1000));
+            event.setReceivedAmount(BigDecimal.valueOf(random.nextDouble() * 10000));
             event.setBeneficiary(TransactionBeneficiary.randomEvent().name());
             event.setTransactionId(UuidCreator.getTimeOrderedEpoch().toString());
             event.setDetails("Details for event " + i);
@@ -46,7 +46,7 @@ public class AccountEventDataGenerator {
     }
 
     enum TransactionBeneficiary {
-        SaraLee, JohnSmith, AnnaRed, HSBD_BANK, LOAN_BANK, FCMA;
+        ArdshinBank, AmeriaBank, Inecobank, HSBD_MALTA, CONVERCE_BANK, EvocaBank;
 
         private static final Random PRNG = new Random();
 

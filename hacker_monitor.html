@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Kafka Hacker Monitor</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: monospace;
+      background-color: #0d0d0d;
+      color: #00ff99;
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+    }
+    /* Left side panel */
+    .sidebar {
+      width: 220px;
+      background: #111;
+      padding: 20px;
+      border-right: 2px solid #00ff99;
+    }
+    .sidebar h2 {
+      color: #00ff99;
+      font-size: 16px;
+      margin-bottom: 20px;
+      border-bottom: 1px solid #00ff99;
+      padding-bottom: 5px;
+    }
+    .sidebar p {
+      font-size: 13px;
+      line-height: 1.5;
+      margin: 10px 0;
+    }
+    /* Main log area */
+    .main {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
+    }
+    .event {
+      background: #111;
+      padding: 12px;
+      margin-bottom: 12px;
+      border-left: 4px solid #00ff99;
+      border-radius: 5px;
+      font-size: 14px;
+    }
+    .event strong {
+      color: #00ffcc;
+    }
+    .status-NEW {
+      color: yellow;
+    }
+    .status-FAILED {
+      color: red;
+    }
+    .status-COMPLETED {
+      color: lime;
+    }
+  </style>
+</head>
+<body>
+  <div class="sidebar">
+    <h2>⚡ Hacker Monitor</h2>
+    <p>Watching Bank Transfers...</p>
+    <p>Showing last 20 updates</p>
+  </div>
+  <div class="main" id="log"></div>
+
+  <script>
+    const logContainer = document.getElementById('log');
+    const MAX_EVENTS = 20;
+
+    // Connect to SSE
+    const evtSource = new EventSource("http://localhost:7778/api/v2/data/stream");
+
+    evtSource.onmessage = function (event) {
+      try {
+        const data = JSON.parse(event.data);
+
+        // Format timestamp
+        const time = new Date(data.timestamp).toLocaleString();
+
+        // Create event block
+        const div = document.createElement('div');
+        div.className = 'event';
+        div.innerHTML = `
+          <div><strong>Time:</strong> ${time}</div>
+          <div><strong>Client:</strong> ${data.clientId}</div>
+          <div><strong>Account:</strong> ${data.clientAccountNumber}</div>
+          <div><strong>Beneficiary:</strong> ${data.beneficiary}</div>
+          <div><strong>Amount:</strong> ${data.receivedAmount.toFixed(2)} ${data.currency}</div>
+          <div><strong>Status:</strong> <span class="status-${data.status}">${data.status}</span></div>
+          <div><strong>Code:</strong> ${data.transactionCode}</div>
+          <div><strong>Txn ID:</strong> ${data.transactionId}</div>
+        `;
+
+        // Insert new at top
+        logContainer.insertBefore(div, logContainer.firstChild);
+
+        // Keep only last 20
+        while (logContainer.children.length > MAX_EVENTS) {
+          logContainer.removeChild(logContainer.lastChild);
+        }
+      } catch (e) {
+        console.error("Failed to parse message:", event.data, e);
+      }
+    };
+  </script>
+</body>
+</html>
+
