@@ -1,4 +1,6 @@
-FROM bellsoft/liberica-openjdk-alpine:24-cds
+#FROM bellsoft/liberica-openjdk-alpine:24-cds
+FROM bellsoft/liberica-openjdk-alpine:latest-cds
+
 
 # Create user and home directory
 RUN adduser -D -h /home/notSec2075 -s /bin/sh notSec2075 \
