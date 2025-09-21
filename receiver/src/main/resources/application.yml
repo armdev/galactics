@@ -45,7 +45,7 @@ server:
     shutdown: GRACEFUL
     http2:
      enabled: true
-    port: 6666
+    port: 7778
     servlet:
       session:
         timeout: 10m

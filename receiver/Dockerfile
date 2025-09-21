@@ -33,6 +33,6 @@ ENTRYPOINT ["java", "--add-opens", "java.base/java.time.zone=ALL-UNNAMED", \
             "-XshowSettings:vm", "-jar", "/opt/receiver.jar"]
 
 # Expose required ports
-EXPOSE 5555 6666
+EXPOSE 5555 7778
 
 

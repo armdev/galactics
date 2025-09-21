@@ -12,14 +12,14 @@ services:
       - banknet
       
       
-  reciever:
+  receiver:
     image: receiver
     build: ./receiver
     env_file: ./receiver/.env
     container_name: receiver    
     ports:
       - '5555:5555'
-      - '6666:6666' 
+      - '7778:7778' 
     networks:
       - banknet
       
