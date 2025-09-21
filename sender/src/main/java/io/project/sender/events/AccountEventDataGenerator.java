@@ -8,7 +8,7 @@ import java.util.Random;
 
 public class AccountEventDataGenerator {
 
-    private static final String[] CURRENCIES = {"AMD", "USD", "EURO", "RUB"};
+    private static final String[] CURRENCIES = {"AMD", "USD", "EURO", "RUB", "AED"};
 
     public static List<AccountEvent> generateEvents() {
         List<AccountEvent> events = new ArrayList<>();
